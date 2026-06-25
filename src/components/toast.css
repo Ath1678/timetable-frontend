@@ -1,0 +1,12 @@
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 18px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+}
+
+.toast.success { background: green; }
+.toast.error { background: red; }

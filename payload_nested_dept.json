@@ -1,0 +1,7 @@
+{
+    "name": "Test Nested Dept",
+    "department": {
+        "id": 17
+    },
+    "semester": "1"
+}

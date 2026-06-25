@@ -1,0 +1,24 @@
+.navbar {
+  height: 60px;
+  background: white;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user button {
+  padding: 6px 12px;
+  border: none;
+  background: #ef4444;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
