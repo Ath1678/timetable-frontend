@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8081/api";
+const BASE_URL = "https://timetable-backend-m6bt.onrender.com";
 
 export const addClass = (data) =>
   axios.post(`${BASE_URL}/classes`, data);
