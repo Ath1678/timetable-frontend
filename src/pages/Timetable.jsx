@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
-  Calendar, Save, RefreshCw, AlertTriangle, CheckCircle,
-  Search, Layers, Clock, Download, FileText, Image as ImageIcon,
+  Save, RefreshCw, AlertTriangle,
+  Layers, Clock, FileText, Image as ImageIcon,
   Sparkles, Building2
 } from "lucide-react";
 import {
@@ -52,13 +52,7 @@ export default function Timetable() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
-
-  const availableSemesters = [1, 2, 3, 4, 5, 6, 7, 8];
-
-  const fetchInitialData = async () => {
+  const fetchInitialData = useCallback(async () => {
     try {
       const [deptsData, classesData, subjectsData, teachersData] = await Promise.all([
         getDepartments(),
@@ -74,7 +68,13 @@ export default function Timetable() {
       console.error("Error fetching data:", error);
       addToast("Failed to load initial data", "error");
     }
-  };
+  }, [addToast]);
+
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
+
+  const availableSemesters = [1, 2, 3, 4, 5, 6, 7, 8];
 
   const filteredClasses = classes.filter(cls => {
     if (!selectedDept || !semester) return false;
@@ -399,10 +399,11 @@ export default function Timetable() {
 
                 <button
                   onClick={checkConflicts}
-                  className="px-6 py-2 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/20 hover:bg-orange-500/30 transition-all flex items-center gap-2"
+                  disabled={checking}
+                  className="px-6 py-2 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/20 hover:bg-orange-500/30 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <AlertTriangle size={18} />
-                  Check Conflicts
+                  <AlertTriangle size={18} className={checking ? "animate-spin" : ""} />
+                  {checking ? "Checking..." : "Check Conflicts"}
                 </button>
 
                 <button
@@ -445,11 +446,16 @@ export default function Timetable() {
                     </td>
                     {periods.map((_, pIndex) => {
                       const cellContent = timetable[dIndex][pIndex];
+                      const hasConflict = isConflictCell(dIndex, pIndex);
                       return (
                         <td key={pIndex} className="p-2 border-b border-white/5 border-r border-white/5 min-w-[120px] h-[80px]">
                           <div className="p-2 text-center text-slate-300 flex items-center justify-center h-full">
                             {cellContent && cellContent !== "Free" ? (
-                              <div className="bg-white/10 px-3 py-2 rounded-md text-sm w-full h-full flex items-center justify-center">
+                              <div className={`px-3 py-2 rounded-md text-sm w-full h-full flex items-center justify-center transition-colors ${
+                                hasConflict 
+                                  ? "bg-red-500/20 text-red-400 border border-red-500/30" 
+                                  : "bg-white/10"
+                              }`}>
                                 {getDisplayValue(cellContent)}
                               </div>
                             ) : (

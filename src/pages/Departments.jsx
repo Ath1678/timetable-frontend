@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { addDepartment, getDepartments, deleteDepartment } from "../api/departmentApi";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Plus, Search, Building, Sparkles } from "lucide-react";
@@ -12,7 +12,7 @@ export default function Departments() {
   const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
-  const loadDepartments = async () => {
+  const loadDepartments = useCallback(async () => {
     try {
       const data = await getDepartments();
       setDepartments(data);
@@ -22,11 +22,11 @@ export default function Departments() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addToast]);
 
   useEffect(() => {
     loadDepartments();
-  }, []);
+  }, [loadDepartments]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

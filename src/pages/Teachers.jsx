@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getDepartments } from "../api/departmentApi";
 import { getTeachers, addTeacher, deleteTeacher } from "../api/teacherApi";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,11 +17,7 @@ export default function Teachers() {
   const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    loadAll();
-  }, []);
-
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     try {
       setDepartments(await getDepartments());
       setTeachers(await getTeachers());
@@ -31,7 +27,11 @@ export default function Teachers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addToast]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

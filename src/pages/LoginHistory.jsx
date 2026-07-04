@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { History, Search, Shield, XCircle, CheckCircle } from 'lucide-react';
+import { History, Search, XCircle, CheckCircle } from 'lucide-react';
 
 export default function LoginHistory() {
     const { getLoginLogs } = useAuth();

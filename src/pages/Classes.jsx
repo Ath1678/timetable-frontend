@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getDepartments } from "../api/departmentApi";
 import { addClass, getClasses, deleteClass } from "../api/classApi";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,11 +15,7 @@ export default function Classes() {
   const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    loadAll();
-  }, []);
-
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     try {
       setDepartments(await getDepartments());
       setClasses(await getClasses());
@@ -29,7 +25,11 @@ export default function Classes() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addToast]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

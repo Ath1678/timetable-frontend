@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getClasses } from "../api/classApi";
 import { getTeachers } from "../api/teacherApi";
 import { getSubjects, addSubject, deleteSubject } from "../api/subjectApi";
@@ -21,11 +21,7 @@ export default function Subjects() {
   const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    loadAll();
-  }, []);
-
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     try {
       const [cls, tch, sub] = await Promise.all([
         getClasses(),
@@ -41,7 +37,11 @@ export default function Subjects() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addToast]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
