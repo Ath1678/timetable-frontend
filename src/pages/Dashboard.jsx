@@ -33,20 +33,26 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user?.role === 'admin') {
-      if (getPendingUsers) setPendingUsers(getPendingUsers());
+      const fetchPending = async () => {
+        if (getPendingUsers) {
+          const users = await getPendingUsers();
+          setPendingUsers(users);
+        }
+      };
+      fetchPending();
     }
   }, [user, getPendingUsers]);
 
-  const handleApprove = (username) => {
-    if (approveUser(username)) {
-      setPendingUsers(prev => prev.filter(u => u.username !== username));
+  const handleApprove = async (userId) => {
+    if (await approveUser(userId)) {
+      setPendingUsers(prev => prev.filter(u => u.id !== userId));
       addToast("User approved successfully", "success");
     }
   };
 
-  const handleReject = (username) => {
-    if (rejectUser(username)) {
-      setPendingUsers(prev => prev.filter(u => u.username !== username));
+  const handleReject = async (userId) => {
+    if (await rejectUser(userId)) {
+      setPendingUsers(prev => prev.filter(u => u.id !== userId));
       addToast("User rejected", "info");
     }
   };
@@ -142,27 +148,27 @@ export default function Dashboard() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {pendingUsers.map(u => (
-                <div key={u.username} className="bg-white/80 dark:bg-black/40 rounded-xl p-4 border border-slate-200 dark:border-white/5 flex flex-col gap-3 shadow-sm">
+                <div key={u.id || u.username} className="bg-white/80 dark:bg-black/40 rounded-xl p-4 border border-slate-200 dark:border-white/5 flex flex-col gap-3 shadow-sm">
                   <div>
                     <div className="flex justify-between items-start">
-                      <span className="font-bold text-slate-900 dark:text-white text-lg">{u.name}</span>
+                      <span className="font-bold text-slate-900 dark:text-white text-lg">{u.username}</span>
                       <span className="text-xs uppercase bg-slate-200 dark:bg-white/10 px-2 py-1 rounded text-slate-600 dark:text-slate-300">{u.role}</span>
                     </div>
                     <p className="text-slate-400 text-sm">@{u.username}</p>
                     <p className="text-slate-500 text-xs mt-1 flex items-center gap-1">
-                      <Building2 className="w-3 h-3" /> {u.institute}
+                      <Building2 className="w-3 h-3" /> {user?.instituteId}
                     </p>
                   </div>
                   <div className="flex gap-2 mt-auto">
                     <button
-                      onClick={() => handleApprove(u.username)}
-                      className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 py-2 rounded-lg text-sm font-medium transition-colors"
+                      onClick={() => handleApprove(u.id)}
+                      className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
                       Approve
                     </button>
                     <button
-                      onClick={() => handleReject(u.username)}
-                      className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 py-2 rounded-lg text-sm font-medium transition-colors"
+                      onClick={() => handleReject(u.id)}
+                      className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-600 dark:text-red-300 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
                       Reject
                     </button>

@@ -1,211 +1,151 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const AuthContext = createContext(null);
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8081';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage for existing session
+        // Load user session from localStorage
         const storedUser = localStorage.getItem('timetable_user');
-        if (storedUser) {
+        const token = localStorage.getItem('timetable_token');
+        if (storedUser && token) {
             setUser(JSON.parse(storedUser));
         }
         setLoading(false);
     }, []);
 
-    // Helper to add log entry
-    const logRegistrationAction = (username, action, details = {}) => {
-        const logs = JSON.parse(localStorage.getItem('timetable_registration_logs') || '[]');
-        logs.push({
-            id: Date.now(),
-            username,
-            action, // 'PENDING', 'APPROVED', 'REJECTED'
-            timestamp: new Date().toISOString(),
-            ...details
-        });
-        localStorage.setItem('timetable_registration_logs', JSON.stringify(logs));
-    };
-
-    const register = (userData) => {
-        const existingUsers = JSON.parse(localStorage.getItem('timetable_registered_users') || '[]');
-        const pendingUsers = JSON.parse(localStorage.getItem('timetable_pending_users') || '[]');
-
-        // Check if username exists in registered or pending
-        if (existingUsers.some(u => u.username === userData.username) ||
-            pendingUsers.some(u => u.username === userData.username)) {
-            return { success: false, message: 'Username already exists' };
-        }
-
-        const newUser = { ...userData };
-        pendingUsers.push(newUser);
-        localStorage.setItem('timetable_pending_users', JSON.stringify(pendingUsers));
-
-        // Log the Pending Request
-        logRegistrationAction(userData.username, 'PENDING', { name: userData.name, role: userData.role, institute: userData.institute });
-
-        // NO Auto login
-        return { success: true, message: 'Registration successful. Waiting for Admin Approval.' };
-    };
-
-    const login = (username, password, institute) => {
-        // 0. Check Pending Users First
-        const pendingUsers = JSON.parse(localStorage.getItem('timetable_pending_users') || '[]');
-        const isPending = pendingUsers.find(u => u.username === username && u.password === password);
-
-        if (isPending) {
-            return { success: false, message: 'Your account is pending admin approval.' };
-        }
-
-        // 1. Check Registered Users
-        const registeredUsers = JSON.parse(localStorage.getItem('timetable_registered_users') || '[]');
-        const foundUser = registeredUsers.find(u => u.username === username && u.password === password);
-
-        if (foundUser) {
-            // Verify Institute if the user has one registered
-            if (foundUser.institute) {
-                if (!institute || foundUser.institute.toLowerCase() !== institute.toLowerCase()) {
-                    console.warn("Institute mismatch");
-                    return { success: false, message: 'Institute mismatch' };
-                }
+    const register = async (userData) => {
+        try {
+            const res = await fetch(`${API_BASE}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: userData.username,
+                    password: userData.password,
+                    role: userData.role,
+                    instituteName: userData.institute || '',
+                    instituteCode: userData.instituteCode || ''
+                })
+            });
+            const data = await res.text();
+            
+            if (!res.ok) {
+                return { success: false, message: data || 'Registration failed' };
             }
-
-            setUser(foundUser);
-            localStorage.setItem('timetable_user', JSON.stringify(foundUser));
-
-            // Log Success
-            logLoginAction(username, 'SUCCESS', { role: foundUser.role, institute: foundUser.institute });
-            return { success: true };
+            
+            // Try parsing JSON if backend returns it
+            try {
+                const json = JSON.parse(data);
+                return { success: true, message: json.message || 'Registration successful. Waiting for Admin Approval.' };
+            } catch {
+                return { success: true, message: data };
+            }
+        } catch (err) {
+            return { success: false, message: 'Server connection error.' };
         }
-
-        // 2. Mock login logic (Fallbacks) - Bypass institute check for demo accounts
-        let role = '';
-        let name = '';
-
-        if (username === 'admin' && password === 'admin123') {
-            role = 'admin';
-            name = 'Administrator';
-        } else if (username === 'teacher' && password === 'teacher123') {
-            role = 'teacher';
-            name = 'John Doe';
-        } else if (username === 'student' && password === 'student123') {
-            role = 'student';
-            name = 'Jane Student';
-        } else {
-            // Log Failed Attempt
-            logLoginAction(username, 'FAILED', { reason: 'Invalid credentials' });
-            return { success: false, message: 'Invalid credentials' };
-        }
-
-        const userData = { username, role, name, institute: institute || 'Demo Institute' };
-        setUser(userData);
-        localStorage.setItem('timetable_user', JSON.stringify(userData));
-
-        // Log Success (Mock)
-        logLoginAction(username, 'SUCCESS', { role, institute: userData.institute });
-        return { success: true };
     };
 
-    // Helper for login logs
-    const logLoginAction = (username, status, details = {}) => {
-        const logs = JSON.parse(localStorage.getItem('timetable_login_logs') || '[]');
-        logs.push({
-            id: Date.now(),
-            username,
-            status, // 'SUCCESS', 'FAILED'
-            timestamp: new Date().toISOString(),
-            ...details
-        });
-        localStorage.setItem('timetable_login_logs', JSON.stringify(logs));
+    const login = async (username, password, institute) => {
+        try {
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            if (!res.ok) {
+                // Read text to capture Spring Boot error message safely
+                const errorText = await res.text();
+                return { success: false, message: errorText || 'Invalid credentials or pending approval' };
+            }
+            
+            const data = await res.json();
+            
+            const userData = {
+                username: username,
+                role: data.role ? data.role.replace('ROLE_', '').toLowerCase() : '',
+                instituteId: data.instituteId,
+                name: username // Backend doesn't return full name currently
+            };
+            
+            setUser(userData);
+            localStorage.setItem('timetable_user', JSON.stringify(userData));
+            localStorage.setItem('timetable_token', data.token);
+            
+            return { success: true };
+        } catch (err) {
+            return { success: false, message: 'Server connection error.' };
+        }
     };
 
     const logout = () => {
         setUser(null);
         localStorage.removeItem('timetable_user');
+        localStorage.removeItem('timetable_token');
     };
 
-    const getPendingUsers = () => {
-        return JSON.parse(localStorage.getItem('timetable_pending_users') || '[]');
+    // --- ADMIN METHODS ---
+    const getAuthHeaders = () => {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('timetable_token')}`
+        };
     };
 
-    const getRegistrationLogs = () => {
-        return JSON.parse(localStorage.getItem('timetable_registration_logs') || '[]').reverse(); // Newest first
-    };
-
-    const approveUser = (username) => {
-        const pendingUsers = JSON.parse(localStorage.getItem('timetable_pending_users') || '[]');
-        const registeredUsers = JSON.parse(localStorage.getItem('timetable_registered_users') || '[]');
-
-        const userIndex = pendingUsers.findIndex(u => u.username === username);
-        if (userIndex > -1) {
-            const userToApprove = pendingUsers[userIndex];
-
-            // Move to registered
-            registeredUsers.push(userToApprove);
-            pendingUsers.splice(userIndex, 1);
-
-            localStorage.setItem('timetable_pending_users', JSON.stringify(pendingUsers));
-            localStorage.setItem('timetable_registered_users', JSON.stringify(registeredUsers));
-
-            // Log Approval
-            logRegistrationAction(username, 'APPROVED', { name: userToApprove.name, role: userToApprove.role, institute: userToApprove.institute });
-
-            return true;
+    const getPendingUsers = useCallback(async () => {
+        if (!user || !user.instituteId) return [];
+        try {
+            const res = await fetch(`${API_BASE}/api/admin/pending-users?instituteId=${user.instituteId}`, {
+                headers: getAuthHeaders()
+            });
+            if (res.ok) {
+                return await res.json();
+            }
+            return [];
+        } catch (err) {
+            console.error("Failed to fetch pending users", err);
+            return [];
         }
-        return false;
-    };
+    }, [user]);
 
-    const rejectUser = (username) => {
-        const pendingUsers = JSON.parse(localStorage.getItem('timetable_pending_users') || '[]');
-        const userIndex = pendingUsers.findIndex(u => u.username === username);
-
-        if (userIndex > -1) {
-            const userToReject = pendingUsers[userIndex];
-            // Remove from pending
-            const newPending = pendingUsers.filter(u => u.username !== username);
-            localStorage.setItem('timetable_pending_users', JSON.stringify(newPending)); // Correctly update local storage with filtered list
-
-            // Log Rejection
-            logRegistrationAction(username, 'REJECTED', { name: userToReject.name, role: userToReject.role, institute: userToReject.institute });
-            return true;
+    const approveUser = async (userId) => {
+        try {
+            const res = await fetch(`${API_BASE}/api/admin/approve/${userId}`, {
+                method: 'POST',
+                headers: getAuthHeaders()
+            });
+            return res.ok;
+        } catch (err) {
+            return false;
         }
-        return false;
     };
 
-    const deleteUser = (username) => {
-        // Run against both lists
-        const pendingUsers = JSON.parse(localStorage.getItem('timetable_pending_users') || '[]');
-        const registeredUsers = JSON.parse(localStorage.getItem('timetable_registered_users') || '[]');
-        const logs = JSON.parse(localStorage.getItem('timetable_registration_logs') || '[]');
-
-        const newPending = pendingUsers.filter(u => u.username !== username);
-        const newRegistered = registeredUsers.filter(u => u.username !== username);
-
-        // Remove ALL logs related to this user so they disappear from history completely
-        const newLogs = logs.filter(l => l.username !== username);
-
-        let changed = false;
-        if (newPending.length !== pendingUsers.length ||
-            newRegistered.length !== registeredUsers.length ||
-            newLogs.length !== logs.length) {
-
-            localStorage.setItem('timetable_pending_users', JSON.stringify(newPending));
-            localStorage.setItem('timetable_registered_users', JSON.stringify(newRegistered));
-            localStorage.setItem('timetable_registration_logs', JSON.stringify(newLogs));
-            changed = true;
+    const rejectUser = async (userId) => {
+        try {
+            const res = await fetch(`${API_BASE}/api/admin/reject/${userId}`, {
+                method: 'POST',
+                headers: getAuthHeaders()
+            });
+            return res.ok;
+        } catch (err) {
+            return false;
         }
-
-        // Return true if we actively deleted something, or if user was just in logs (declined) and we cleaned it up
-        return changed;
     };
 
-    const getLoginLogs = () => {
-        return JSON.parse(localStorage.getItem('timetable_login_logs') || '[]').reverse();
-    };
+    // Fallbacks for mocked logs
+    const getRegistrationLogs = () => { return []; };
+    const deleteUser = (username) => { return false; };
+    const getLoginLogs = () => { return []; };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, register, loading, getPendingUsers, approveUser, rejectUser, getRegistrationLogs, deleteUser, getLoginLogs }}>
+        <AuthContext.Provider value={{ 
+            user, login, logout, register, loading, 
+            getPendingUsers, approveUser, rejectUser, 
+            getRegistrationLogs, deleteUser, getLoginLogs 
+        }}>
             {!loading && children}
         </AuthContext.Provider>
     );

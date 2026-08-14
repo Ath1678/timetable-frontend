@@ -12,10 +12,10 @@ const Login = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        const response = login(username, password, institute);
+        const response = await login(username, password, institute);
         if (response.success) {
             navigate('/');
         } else {

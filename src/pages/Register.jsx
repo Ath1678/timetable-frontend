@@ -18,7 +18,7 @@ const Register = () => {
     const { register } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -27,7 +27,13 @@ const Register = () => {
             return;
         }
 
-        const result = register(formData);
+        const dataToSend = {
+            ...formData,
+            instituteCode: formData.role !== 'admin' ? formData.institute : '',
+            institute: formData.role === 'admin' ? formData.institute : ''
+        };
+
+        const result = await register(dataToSend);
         if (result.success) {
             setShowModal(true);
         } else {
@@ -70,9 +76,11 @@ const Register = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
 
-                        {/* Institute Name */}
+                        {/* Institute Name or Code */}
                         <div>
-                            <label className="text-sm font-medium text-gray-700 ml-1">Institute Name</label>
+                            <label className="text-sm font-medium text-gray-700 ml-1">
+                                {formData.role === 'admin' ? 'Institute Name' : 'Institute Join Code'}
+                            </label>
                             <div className="relative group mt-1">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Building className="h-5 w-5 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
@@ -82,7 +90,7 @@ const Register = () => {
                                     value={formData.institute}
                                     onChange={(e) => setFormData({ ...formData, institute: e.target.value })}
                                     className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
-                                    placeholder="e.g. MIT, Stanford"
+                                    placeholder={formData.role === 'admin' ? "e.g. MIT, Stanford" : "Enter 6-digit Join Code"}
                                     required
                                 />
                             </div>

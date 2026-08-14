@@ -58,7 +58,9 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Brand */}
         <div className="mb-10 flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
-            <img src="/logo.jpg" alt="Timetable Pro Logo" className="w-9 h-9 rounded-xl shadow-lg" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-lg text-white font-bold text-xl tracking-tighter">
+              TP
+            </div>
             <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-white dark:to-slate-400">
               Timetable Pro
             </h2>
