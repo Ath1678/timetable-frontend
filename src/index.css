@@ -4,7 +4,10 @@
 
 @layer base {
   body {
-    @apply bg-dark text-white font-sans antialiased overflow-x-hidden;
+    @apply bg-slate-50 text-slate-900 dark:bg-dark dark:text-white font-sans antialiased overflow-x-hidden transition-colors duration-300;
+  }
+  
+  .dark body {
     background-image:
       radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
       radial-gradient(circle at 90% 80%, rgba(217, 70, 239, 0.15) 0%, transparent 40%);
@@ -13,11 +16,11 @@
 
 /* Glassmorphism Utilities */
 .glass {
-  @apply bg-card/60 backdrop-blur-xl border border-white/5 shadow-2xl;
+  @apply bg-white/60 dark:bg-card/60 backdrop-blur-xl border border-slate-200 dark:border-white/5 shadow-2xl;
 }
 
 .glass-hover {
-  @apply hover:bg-surface/60 hover:border-white/10 transition-all duration-300;
+  @apply hover:bg-slate-100/60 dark:hover:bg-surface/60 hover:border-slate-300 dark:hover:border-white/10 transition-all duration-300;
 }
 
 /* Neon Text */

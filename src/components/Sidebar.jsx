@@ -10,14 +10,19 @@ import {
   Coffee,
   X,
   Shield,
-  History
+  History,
+  Sun,
+  Moon,
+  Monitor
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -48,20 +53,18 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar Container */}
       <motion.div
-        className={`fixed left-0 top-0 h-full w-64 bg-slate-900/90 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed left-0 top-0 h-full w-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 p-6 flex flex-col z-50 transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Brand */}
         <div className="mb-10 flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/30">
-              <CalendarDays className="w-5 h-5 text-white" />
-            </div>
-            <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+            <img src="/logo.jpg" alt="Timetable Pro Logo" className="w-9 h-9 rounded-xl shadow-lg" />
+            <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-white dark:to-slate-400">
               Timetable Pro
             </h2>
           </div>
           {/* Close Button Mobile */}
-          <button onClick={onClose} className="lg:hidden p-1 rounded-lg hover:bg-white/10 text-slate-400">
+          <button onClick={onClose} className="lg:hidden p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -80,22 +83,22 @@ export default function Sidebar({ isOpen, onClose }) {
               <Link key={item.path} to={item.path} onClick={onClose}>
                 <div
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative group overflow-hidden ${isActive
-                    ? "text-white"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    ? "text-indigo-700 dark:text-white font-semibold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-white/5"
                     }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 border border-violet-500/30 rounded-xl"
+                      className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-violet-100 dark:from-violet-600/20 dark:to-indigo-600/20 border border-indigo-200 dark:border-violet-500/30 rounded-xl"
                     />
                   )}
 
-                  <item.icon className={`w-5 h-5 relative z-10 ${isActive ? "text-violet-400" : ""}`} />
-                  <span className="font-medium relative z-10">{item.label}</span>
+                  <item.icon className={`w-5 h-5 relative z-10 ${isActive ? "text-indigo-600 dark:text-violet-400" : ""}`} />
+                  <span className="relative z-10">{item.label}</span>
 
                   {isActive && (
-                    <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.8)]" />
+                    <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-violet-400 shadow-[0_0_10px_rgba(99,102,241,0.8)] dark:shadow-[0_0_10px_rgba(167,139,250,0.8)]" />
                   )}
                 </div>
               </Link>
@@ -103,10 +106,35 @@ export default function Sidebar({ isOpen, onClose }) {
           })}
         </nav>
 
-        <div className="px-4 py-3 border-t border-white/5">
+        {/* Theme Switcher */}
+        <div className="px-2 py-3 mt-4 border-t border-slate-200 dark:border-white/5 flex items-center justify-between">
+          <button 
+            onClick={() => setTheme('light')} 
+            className={`p-2 rounded-lg transition-colors ${theme === 'light' ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800'}`}
+            title="Light Mode"
+          >
+            <Sun className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={() => setTheme('system')} 
+            className={`p-2 rounded-lg transition-colors ${theme === 'system' ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800'}`}
+            title="System Theme"
+          >
+            <Monitor className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={() => setTheme('dark')} 
+            className={`p-2 rounded-lg transition-colors ${theme === 'dark' ? 'bg-slate-800 text-violet-400' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800'}`}
+            title="Dark Mode"
+          >
+            <Moon className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-2 py-3 border-t border-slate-200 dark:border-white/5">
           <button
             onClick={logout}
-            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-300"
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all duration-300"
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Logout</span>
@@ -114,7 +142,7 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="mt-4 pt-4 border-t border-white/5 text-center text-xs text-slate-500">
+        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/5 text-center text-xs text-slate-500">
           <p>v2.0.0 &copy; 2026</p>
         </div>
       </motion.div>
