@@ -106,32 +106,7 @@ export default function Sidebar({ isOpen, onClose }) {
           })}
         </nav>
 
-        {/* Theme Switcher */}
-        <div className="px-2 py-3 mt-4 border-t border-slate-200 dark:border-white/5 flex items-center justify-between">
-          <button 
-            onClick={() => setTheme('light')} 
-            className={`p-2 rounded-lg transition-colors ${theme === 'light' ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800'}`}
-            title="Light Mode"
-          >
-            <Sun className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setTheme('system')} 
-            className={`p-2 rounded-lg transition-colors ${theme === 'system' ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800'}`}
-            title="System Theme"
-          >
-            <Monitor className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setTheme('dark')} 
-            className={`p-2 rounded-lg transition-colors ${theme === 'dark' ? 'bg-slate-800 text-violet-400' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800'}`}
-            title="Dark Mode"
-          >
-            <Moon className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="px-2 py-3 border-t border-slate-200 dark:border-white/5">
+        <div className="px-2 py-3 border-t border-slate-200 dark:border-white/5 mt-auto">
           <button
             onClick={logout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all duration-300"

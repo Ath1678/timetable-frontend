@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -50,19 +51,21 @@ const AppLayout = () => {
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64 relative min-w-0">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/departments" element={<Departments />} />
-          <Route path="/classes" element={<Classes />} />
-          <Route path="/teachers" element={<Teachers />} />
-          <Route path="/subjects" element={<Subjects />} />
-          <Route path="/timetable" element={<Timetable />} />
-          <Route path="/holidays" element={<HolidayRequests />} />
-          <Route path="/users" element={<UserHistory />} />
-          <Route path="/login-history" element={<LoginHistory />} />
-        </Routes>
+      <div className="flex-1 lg:ml-64 relative min-w-0 flex flex-col min-h-screen">
+        <Header />
+        <div className="flex-1 relative">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/departments" element={<Departments />} />
+            <Route path="/classes" element={<Classes />} />
+            <Route path="/teachers" element={<Teachers />} />
+            <Route path="/subjects" element={<Subjects />} />
+            <Route path="/timetable" element={<Timetable />} />
+            <Route path="/holidays" element={<HolidayRequests />} />
+            <Route path="/users" element={<UserHistory />} />
+            <Route path="/login-history" element={<LoginHistory />} />
+          </Routes>
+        </div>
       </div>
     </div>
   );

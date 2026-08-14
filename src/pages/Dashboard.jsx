@@ -99,7 +99,7 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col md:flex-row justify-between items-end border-b border-white/5 pb-8"
+          className="flex flex-col md:flex-row justify-between items-end border-b border-slate-200 dark:border-white/5 pb-8"
         >
           <div>
             <motion.div
@@ -111,12 +111,12 @@ export default function Dashboard() {
                 <Zap className="w-3 h-3 fill-orange-300" /> Live Updates
               </div>
             </motion.div>
-            <h1 className="text-6xl font-black text-white tracking-tight">
+            <h1 className="text-6xl font-black text-slate-900 dark:text-white tracking-tight">
               Dashboard <span className="text-primary">.</span>
             </h1>
-            <p className="text-xl text-slate-400 font-light mt-2">
-              Welcome back, <span className="text-white font-medium">{user?.name}</span>
-              <span className="px-2 py-0.5 ml-3 rounded-full bg-white/10 text-xs font-bold uppercase tracking-wider text-slate-300 border border-white/10">
+            <p className="text-xl text-slate-600 dark:text-slate-400 font-light mt-2">
+              Welcome back, <span className="text-slate-900 dark:text-white font-medium">{user?.name}</span>
+              <span className="px-2 py-0.5 ml-3 rounded-full bg-slate-200 dark:bg-white/10 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-white/10">
                 {user?.role}
               </span>
             </p>
@@ -142,11 +142,11 @@ export default function Dashboard() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {pendingUsers.map(u => (
-                <div key={u.username} className="bg-black/40 rounded-xl p-4 border border-white/5 flex flex-col gap-3">
+                <div key={u.username} className="bg-white/80 dark:bg-black/40 rounded-xl p-4 border border-slate-200 dark:border-white/5 flex flex-col gap-3 shadow-sm">
                   <div>
                     <div className="flex justify-between items-start">
-                      <span className="font-bold text-white text-lg">{u.name}</span>
-                      <span className="text-xs uppercase bg-white/10 px-2 py-1 rounded text-slate-300">{u.role}</span>
+                      <span className="font-bold text-slate-900 dark:text-white text-lg">{u.name}</span>
+                      <span className="text-xs uppercase bg-slate-200 dark:bg-white/10 px-2 py-1 rounded text-slate-600 dark:text-slate-300">{u.role}</span>
                     </div>
                     <p className="text-slate-400 text-sm">@{u.username}</p>
                     <p className="text-slate-500 text-xs mt-1 flex items-center gap-1">
@@ -193,10 +193,10 @@ export default function Dashboard() {
 
                 <div className="relative z-10">
                   <p className={`font-bold ${item.color} mb-2 uppercase tracking-wider text-xs`}>{item.title}</p>
-                  <h3 className="text-5xl font-black text-white mb-2 tracking-tighter">
+                  <h3 className="text-5xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter">
                     {loading ? <span className="animate-pulse">--</span> : item.value}
                   </h3>
-                  <div className="flex items-center gap-1 text-slate-400 text-sm group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                     <ArrowUpRight className="w-4 h-4" />
                     <span>View Details</span>
                   </div>
@@ -212,11 +212,11 @@ export default function Dashboard() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
-            className="glass p-8 rounded-3xl border border-white/5 bg-[#13141f]"
+            className="glass p-8 rounded-3xl border border-slate-200 dark:border-white/5 bg-white dark:bg-[#13141f]"
           >
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
                   <Activity className="w-6 h-6 text-primary" />
                   Analytics Overview
                 </h2>
